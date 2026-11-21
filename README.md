@@ -21,14 +21,14 @@ alternativas simples; a primeira execução não demonstra superioridade geral.
 
 ## Instalação
 
-Ambiente usado nesta etapa: Linux/WSL, **Python 3.12.14** e `uv` 0.12.9.
+Ambiente verificado: **Python 3.12.16** e `uv` 0.13.8.
 Dependências diretas: `httpx` 0.28.1 (HTTP) e `python-dotenv` 1.2.4 (.env).
 As versões resolvidas estão em [requirements.txt](requirements.txt).
 
 Com Python 3.12 e uv já disponíveis, execute na raiz:
 
 ```bash
-uv venv --python python3.12 .venv
+uv venv --python 3.12 .venv
 uv pip install --python .venv/bin/python -r requirements.txt
 ```
 
@@ -76,8 +76,9 @@ observada está em [primeira execução](evidencias/primeira-execucao.md).
 
 ## Verificação atual
 
-A chamada com o exemplo foi **real**, usando a API Groq; não foi uma resposta
-simulada. Para repeti-la, use o comando acima (consome cota do serviço).
+A primeira execução com o exemplo e a repetição após os ajustes do
+Intermediário usaram a API real da Groq. Para repetir, use o comando acima
+(consome cota do serviço).
 
 Também foi verificada a sintaxe localmente, sem chamada à API:
 
@@ -85,17 +86,26 @@ Também foi verificada a sintaxe localmente, sem chamada à API:
 .venv/bin/python -m py_compile comparador.py
 ```
 
-Ainda não há suíte de testes automatizados. Os casos simulados de falha,
-a avaliação dos seis cenários planejados e a validação final em ambiente limpo
-serão acrescentados durante a evolução do projeto. Criar a primeira `.venv`
-de desenvolvimento não equivale à validação final de reprodução.
+Os testes locais verificaram o bloqueio de entrada vazia, chave ausente e
+modelo em branco. As chamadas reais verificaram a rejeição de uma chave
+inválida e de um modelo inexistente. Os testes de falhas do serviço simulam
+as respostas e exceções HTTP sem acessar a API. Execute a partir da raiz:
+
+```bash
+.venv/bin/python -m unittest discover -s tests -v
+```
+
+Os comandos e resultados estão no [registro do Intermediário](evidencias/intermediario.md).
 
 ## Estrutura
 
-- `comparador.py`: entrada, instruções de comparação e chamada HTTP.
+- `comparador.py`: `main()` coordena a configuração e leitura dos textos,
+  chama `comparar()` e exibe o resultado. A preparação do JSON e a interpretação
+  da resposta ficam em funções próprias.
 - `requirements.in` / `requirements.txt`: dependências diretas e versões resolvidas.
 - `.env.example`: nomes das variáveis, sem chave real.
 - `exemplos/entrada.txt`: dois registros fictícios terminados por FIM.
+- `tests/test_falhas_servico.py`: testes locais de falhas HTTP, validação de respostas e apresentação.
 - `evidencias/primeira-execucao.md`: resultado e limites do primeiro teste real.
 
 ## Limites conhecidos
