@@ -31,8 +31,9 @@ Seja conciso; apresente apenas a comparação e os pontos de conferência.
 
 
 def ler_texto(titulo: str) -> str:
+    """Lê um texto do terminal até encontrar uma linha contendo FIM."""
     print(f"{titulo} — termine com FIM em uma linha separada:")
-    linhas = []
+    linhas: list[str] = []
     while True:
         linha = input()
         if linha.strip() == "FIM":
@@ -42,6 +43,7 @@ def ler_texto(titulo: str) -> str:
 
 
 def comparar(anotacoes: str, registro: str, chave: str, modelo: str) -> str:
+    """Envia os dois registros à Groq e retorna a comparação em texto Markdown."""
     # JSON delimita os dois textos dentro da mensagem, sem exigir JSON na saída.
     entrada = json.dumps(
         {"anotacoes_pessoais": anotacoes, "registro_automatico": registro},
@@ -73,6 +75,7 @@ def comparar(anotacoes: str, registro: str, chave: str, modelo: str) -> str:
 
 
 def main() -> int:
+    """Carrega a configuração, coleta os textos e mostra o resultado ou o erro."""
     load_dotenv(Path(__file__).resolve().parent / ".env", interpolate=False)
     chave = os.getenv("GROQ_API_KEY", "").strip()
     modelo = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b").strip()
@@ -81,6 +84,7 @@ def main() -> int:
         return 1
 
     try:
+        # Validar os textos antes da chamada evita consumo desnecessário da API.
         anotacoes = ler_texto("Suas anotações")
         registro = ler_texto("Transcrição ou registro automático")
         if not anotacoes or not registro:
